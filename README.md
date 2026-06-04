@@ -8,6 +8,6 @@ In a real-world system, the Project entity would carry attributes like start dat
 
 Additionally, in the real world a single patient may appear in multiple projects (unless there is a policy to not include the same patients across different projects that was not specified in the assignment). A patient's condition, treatment, and response can all change over time. might choose to handle this by adding an Enrollment entity that sits between Subject and Project, carrying treatment, response, and condition as attributes of a given enrollment rather than of the subject themselves. However, in this dataset each subject appears in exactly one project, so enrollment collapses into subject without any loss of information. I kept treatment and response as subject attributes to avoid unnecessary complexity for data that doesn't require it.
 
-![Conceptual Diagram](Teiko_cell_ER_conceptual.png)
+![Conceptual Diagram](conceptual_ER.png)
 ![Logical Diagram](logical_ER.png)
 
