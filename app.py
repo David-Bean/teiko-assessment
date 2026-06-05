@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
 
 
@@ -7,7 +8,7 @@ import streamlit as st
 def load_data() -> pd.DataFrame:
     return pd.read_csv("outputs/summary_table.csv")
 
-
+g
 @st.cache_data
 def compute_averages(df: pd.DataFrame) -> pd.Series:
     return df.groupby("population")["percentage"].mean()
@@ -21,6 +22,16 @@ def load_responder_data() -> pd.DataFrame:
 @st.cache_data
 def load_significance_data() -> pd.DataFrame:
     return pd.read_csv("outputs/significance_results.csv")
+
+
+@st.cache_data
+def load_subset_data() -> pd.DataFrame:
+    return pd.read_csv("outputs/subset_samples.csv")
+
+
+@st.cache_data
+def load_bonus_data() -> float:
+    return pd.read_csv("outputs/bonus_avg_bcells.csv")["avg_b_cells"][0]
 
 
 st.title("Initial Analysis")
@@ -182,3 +193,88 @@ st.write(
     "The only significant difference in cell populations was CD4 T cells, but the effect size was "
     "small and therefore the difference may not be biologically significant."
 )
+
+st.title("Data Subset Analysis")
+
+st.write("**Question:** *Among melanoma patients treated with miraclib, how are PBMC baseline samples distributed across projects, response groups, and sexes?*")
+
+st.write(
+    "The table below lists all PBMC samples collected at baseline (time from treatment start = 0) "
+    "from melanoma patients treated with miraclib."
+)
+
+subset_df = load_subset_data()
+with st.expander("Click here to view table"):
+    st.dataframe(subset_df, width="stretch")
+
+subjects_df = subset_df.drop_duplicates("subject")
+
+samples_per_project = (
+    subset_df.groupby("project")["sample"]
+    .count()
+    .reset_index()
+    .rename(columns={"sample": "count"})
+)
+subjects_by_response = (
+    subjects_df.groupby("response")["subject"]
+    .count()
+    .reset_index()
+    .rename(columns={"subject": "count"})
+)
+subjects_by_sex = (
+    subjects_df.groupby("sex")["subject"]
+    .count()
+    .reset_index()
+    .rename(columns={"subject": "count"})
+)
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.write("**Samples per Project**")
+    st.dataframe(samples_per_project, hide_index=True)
+
+with col2:
+    st.write("**Subjects by Response**")
+    st.dataframe(subjects_by_response, hide_index=True)
+
+with col3:
+    st.write("**Subjects by Sex**")
+    st.dataframe(subjects_by_sex, hide_index=True)
+
+pie_fig = make_subplots(
+    rows=1,
+    cols=3,
+    specs=[[{"type": "pie"}, {"type": "pie"}, {"type": "pie"}]],
+)
+
+pie_fig.add_trace(
+    go.Pie(labels=samples_per_project["project"], values=samples_per_project["count"], showlegend=True),
+    row=1, col=1,
+)
+pie_fig.add_trace(
+    go.Pie(labels=subjects_by_response["response"], values=subjects_by_response["count"], showlegend=True),
+    row=1, col=2,
+)
+pie_fig.add_trace(
+    go.Pie(labels=subjects_by_sex["sex"], values=subjects_by_sex["count"], showlegend=True),
+    row=1, col=3,
+)
+
+pie_fig.update_traces(textinfo="label+percent", hole=0.4)
+pie_fig.update_layout(showlegend=False, height=300, margin=dict(t=0, b=0, l=0, r=0))
+
+st.plotly_chart(pie_fig, width="stretch")
+
+st.write(
+    "**Interpretation:** After filtering for the provided conditions, only patients from projects 1 and 3 "
+    "were present. Project 1 had a larger representation in this subset. Response to treatment was "
+    "approximately equal, and males were more frequent than females."
+)
+
+st.title("Bonus (Filter Question)")
+
+st.write("**Question:** *Considering melanoma males, what is the average number of B cells for responders at time = 0?*")
+
+avg_b_cells = load_bonus_data()
+st.write(f"**Answer:** {avg_b_cells:.2f}")

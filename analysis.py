@@ -83,3 +83,52 @@ for pop in responder_df["population"].unique():
 significance_df = pd.DataFrame(significance_rows).sort_values("p_value")
 significance_df.to_csv(f"{OUTPUT_DIR}/significance_results.csv", index=False)
 print(f"Wrote {len(significance_df)} rows to {OUTPUT_DIR}/significance_results.csv")
+
+# Part 4: Baseline subset analysis
+# Melanoma PBMC samples at baseline (time_from_treatment_start=0), miraclib patients
+with sqlite3.connect(DB_PATH) as conn:
+    subset_df = pd.read_sql_query(
+        """
+        SELECT
+            s.sample_id          AS sample,
+            sub.subject_id       AS subject,
+            p.project_id         AS project,
+            sub.treatment,
+            s.sample_type,
+            s.time_from_treatment,
+            sub.response,
+            sub.sex
+        FROM samples s
+        JOIN subjects sub ON s.subject_id  = sub.subject_id
+        JOIN projects p   ON sub.project_id = p.project_id
+        WHERE sub.condition               = 'melanoma'
+          AND sub.treatment               = 'miraclib'
+          AND s.sample_type               = 'PBMC'
+          AND s.time_from_treatment       = 0
+        ORDER BY s.sample_id
+        """,
+        conn,
+    )
+
+subset_df.to_csv(f"{OUTPUT_DIR}/subset_samples.csv", index=False)
+print(f"Wrote {len(subset_df)} rows to {OUTPUT_DIR}/subset_samples.csv")
+
+# Bonus: Average B cell count for melanoma male responders at baseline
+with sqlite3.connect(DB_PATH) as conn:
+    bonus_df = pd.read_sql_query(
+        """
+        SELECT AVG(cc.count) AS avg_b_cells
+        FROM cell_counts cc
+        JOIN samples s   ON cc.sample_id  = s.sample_id
+        JOIN subjects sub ON s.subject_id = sub.subject_id
+        WHERE sub.condition         = 'melanoma'
+          AND sub.sex               = 'M'
+          AND sub.response          = 'yes'
+          AND s.time_from_treatment = 0
+          AND cc.cell_type          = 'b_cell'
+        """,
+        conn,
+    )
+
+bonus_df.to_csv(f"{OUTPUT_DIR}/bonus_avg_bcells.csv", index=False)
+print(f"Avg B cells (melanoma male responders, baseline): {bonus_df['avg_b_cells'][0]:.2f}")
