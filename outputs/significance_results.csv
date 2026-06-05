@@ -1,0 +1,6 @@
+population,p_value,significant,effect_size_r,median_responders,median_non_responders,direction
+cd4_t_cell,0.0133,Yes,-0.064,30.22,29.66,Higher in responders
+b_cell,0.0557,No,0.05,9.43,9.79,
+nk_cell,0.1211,No,0.04,14.51,14.8,
+monocyte,0.1632,No,0.036,19.61,19.94,
+cd8_t_cell,0.6391,No,0.012,24.73,24.6,
