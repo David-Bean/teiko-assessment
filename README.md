@@ -4,8 +4,7 @@ https://tekoas5essment.streamlit.app/
 
 ## How to Run
 
-This project was designed and tested in **GitHub Codespaces** and is intended to be run there. Behavior in other environments is not guaranteed.
-
+This project was designed and tested in **GitHub Codespaces**
 **Environment:**
 - Python 3.12.1
 - Dependencies (see requirements.txt)
