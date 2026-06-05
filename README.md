@@ -25,9 +25,9 @@ The Makefile orchestrates three python files with unique tasks
 
 - **`load_data.py`** — Initializes the SQLite database (`teiko.db`) and loads `cell-count.csv` into four normalized tables: `projects`, `subjects`, `samples`, and `cell_counts`.
 
-- **`analysis.py`** — Queries the database to produce all analytical outputs. Performs summaries, filtering steps, and statistical tests.runs Mann-Whitney U tests to compare responders vs. All results are stored as tables in the `outputs/` directory
+- **`analysis.py`** — Queries the database to produce all analytical outputs. Performs summaries, filtering steps, and statistical tests. All results are stored as tables in the `outputs/` directory
 
-- **`app.py`** — Streamlit dashboard that reads the CSVs from `outputs/` and renders interactive visualizations. Additionally records my own interpretation of results
+- **`app.py`** — Streamlit dashboard that reads the CSVs from `outputs/` and renders interactive visualizations. Additionally records my own interpretation of results.
 
 This pipeline design — ingest → analyze → visualize as three separate steps — keeps each concern isolated and makes it easy to rerun just the analysis or just the dashboard without touching the database.
 
