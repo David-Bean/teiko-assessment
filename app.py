@@ -8,7 +8,6 @@ import streamlit as st
 def load_data() -> pd.DataFrame:
     return pd.read_csv("outputs/summary_table.csv")
 
-g
 @st.cache_data
 def compute_averages(df: pd.DataFrame) -> pd.Series:
     return df.groupby("population")["percentage"].mean()
